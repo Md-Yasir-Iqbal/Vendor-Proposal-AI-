@@ -106,6 +106,19 @@ CUSTOM_CSS = """
     }
     div[data-testid="stSidebarNav"] { display: none; }
     .app-subtitle { display: none !important; }
+    .auth-topline { position: fixed; inset: 0 0 auto; height: 5px; background: #087b71; z-index: 9999; }
+    .auth-brand { text-align: center; margin: 10vh 0 1.6rem; }
+    .auth-mark { display: grid; place-items: center; width: 3.25rem; height: 3.25rem; margin: 0 auto 1rem; border-radius: .9rem; background: #e9b949; color: #183139; font-family: 'DM Mono', monospace; font-size: .9rem; font-weight: 600; }
+    .auth-name { color: var(--ink); font-size: 1.1rem; font-weight: 700; letter-spacing: -.03em; }
+    .auth-kicker { margin-top: .2rem; color: var(--teal); font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .12em; }
+    .auth-brand h1 { margin: 1.7rem 0 .45rem; font-size: 2.3rem !important; }
+    .auth-brand p { margin: 0 auto; max-width: 420px; color: var(--muted); font-size: .95rem; }
+    [data-testid="stTabs"] { margin-top: .4rem; }
+    [data-testid="stTabs"] [data-baseweb="tab-list"] { gap: 1.25rem; border-bottom-color: var(--line); }
+    [data-testid="stTabs"] button { height: 2.7rem; color: var(--muted); font-weight: 600; }
+    [data-testid="stTabs"] button[aria-selected="true"] { color: var(--teal); }
+    [data-testid="stTabs"] [data-baseweb="tab-highlight"] { background-color: var(--teal); }
+    [data-testid="stTabs"] [data-testid="stForm"] { margin-top: .6rem; }
     hr { border-color: var(--line); margin: 1.6rem 0; }
     @media (max-width: 760px) { .block-container { padding: 1.5rem 1rem 3rem; } h1 { font-size: 2rem !important; } }
 </style>

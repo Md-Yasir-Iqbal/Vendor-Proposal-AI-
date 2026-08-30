@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import streamlit as st
 
+from app.persistence.database import list_analysis_history
 from app.ui.styles import metric_card, page_header, section_heading
-from app.utils.state import get_documents_meta, get_recommendation, get_requirements, get_vendor_results
+from app.utils.state import get_documents_meta, get_recommendation, get_requirements, get_vendor_results, restore_saved_analysis
 
 
 def render() -> None:
@@ -49,6 +50,28 @@ def render() -> None:
         )
 
     section_heading("Current Analysis")
+
+    saved_history = list_analysis_history(st.session_state.get("auth_user", ""))
+    if saved_history:
+        st.caption("Your analysis snapshots are saved automatically to your account.")
+        for item in saved_history:
+            project_name = item["project_name"] or "Untitled analysis"
+            updated_at = item["updated_at"].replace("T", " ").split("+")[0]
+            history_info, history_action = st.columns([4, 1])
+            with history_info:
+                st.markdown(
+                    f'''<div class="rank-card">
+                        <b>{project_name}</b><br/>
+                        <span style="color:#6b7280;font-size:.84rem;">Saved: {updated_at} UTC</span>
+                    </div>''',
+                    unsafe_allow_html=True,
+                )
+            with history_action:
+                if st.button("Load", key=f"load_saved_{item['project_id']}", width="stretch"):
+                    if restore_saved_analysis(st.session_state.get("auth_user", ""), item["project_id"]):
+                        st.session_state["_nav_target"] = "Analysis Dashboard"
+                        st.rerun()
+                    st.error("This saved analysis could not be restored.")
 
     if requirements is None:
         st.info("No analysis project has been created yet. Click **Create / Edit Analysis** to begin.")

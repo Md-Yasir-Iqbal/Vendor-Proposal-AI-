@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import streamlit as st
 
+from app.auth.session import init_auth_state, is_authenticated, logout
+from app.auth.ui import render_login_page
 from app.ui import comparison, create_analysis, dashboard, home, recommendation, upload, vendor_details
 from app.ui.styles import inject_css
 from app.utils.config import get_settings
@@ -19,8 +21,17 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-init_state()
 inject_css()
+init_auth_state()
+
+if not is_authenticated():
+    render_login_page()
+    st.stop()
+
+init_state()
+
+if "auth_notice" in st.session_state:
+    st.warning(st.session_state.pop("auth_notice"))
 
 PAGES = {
     "Home": home,
@@ -66,6 +77,10 @@ with st.sidebar:
         st.caption("Groq API: not configured (.env)")
 
     st.markdown('<div class="sidebar-section-label">SYSTEM</div>', unsafe_allow_html=True)
+    st.caption(f"Signed in as {st.session_state['auth_user']}")
+    if st.button("Log out", width="stretch"):
+        logout()
+        st.rerun()
     if st.button("Start New Analysis", width="stretch"):
         reset_everything()
         st.rerun()

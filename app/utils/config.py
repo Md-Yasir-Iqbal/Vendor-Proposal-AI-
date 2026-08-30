@@ -62,9 +62,20 @@ class Settings:
     # --- App -------------------------------------------------------------------------
     app_env: str = field(default_factory=lambda: os.getenv("APP_ENV", "development"))
     log_level: str = field(default_factory=lambda: os.getenv("LOG_LEVEL", "INFO"))
+    sqlite_db_path: str = field(
+        default_factory=lambda: os.getenv("SQLITE_DB_PATH", str(_PROJECT_ROOT / "data" / "vendor_proposal_ai.sqlite3"))
+    )
+    smtp_host: str = field(default_factory=lambda: os.getenv("SMTP_HOST", "smtp.gmail.com").strip())
+    smtp_port: int = field(default_factory=lambda: _get_int("SMTP_PORT", 587))
+    smtp_username: str = field(default_factory=lambda: os.getenv("SMTP_USERNAME", "").strip())
+    smtp_password: str = field(default_factory=lambda: os.getenv("SMTP_PASSWORD", ""))
+    smtp_from_email: str = field(default_factory=lambda: os.getenv("SMTP_FROM_EMAIL", "").strip())
 
     def is_groq_configured(self) -> bool:
         return bool(self.groq_api_key) and bool(self.groq_model)
+
+    def is_smtp_configured(self) -> bool:
+        return bool(self.smtp_host and self.smtp_username and self.smtp_password and self.smtp_from_email)
 
 
 def get_settings() -> Settings:
