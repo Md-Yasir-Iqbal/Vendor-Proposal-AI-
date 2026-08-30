@@ -10,9 +10,13 @@ from typing import Any
 
 from app.utils.config import get_settings
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_DEFAULT_DATABASE_PATH = _PROJECT_ROOT / "data" / "vendor_proposal_ai.sqlite3"
+
 
 def _connection() -> sqlite3.Connection:
-    path = Path(get_settings().sqlite_db_path)
+    # Supports a staged deployment where an older Settings class is still loaded.
+    path = Path(getattr(get_settings(), "sqlite_db_path", str(_DEFAULT_DATABASE_PATH)))
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(path, timeout=10)
     connection.row_factory = sqlite3.Row

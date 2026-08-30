@@ -11,24 +11,37 @@ from app.auth.session import login
 def render_login_page() -> None:
     """Render the only page visible before a user authenticates."""
     st.markdown('<div class="auth-topline"></div>', unsafe_allow_html=True)
-    _, center, _ = st.columns([1, 1.15, 1])
-    with center:
+    st.markdown('<div class="auth-page-label">VENDOR PROPOSAL AI · SECURE WORKSPACE</div>', unsafe_allow_html=True)
+    showcase, access = st.columns([1.18, 0.82], gap="large")
+    with showcase:
         st.markdown(
-            '''<div class="auth-brand">
-                <div class="auth-mark">VP</div>
-                <div class="auth-name">Vendor Proposal AI</div>
-                <div class="auth-kicker">PROCUREMENT INTELLIGENCE</div>
-                <h1>Decide with confidence.</h1>
-                <p>Securely access your evidence-grounded vendor analysis workspace.</p>
+            '''<div class="auth-showcase">
+                <div class="auth-overline"><span></span> PROCUREMENT INTELLIGENCE</div>
+                <h1>Make every vendor decision <em>defensible.</em></h1>
+                <p>Bring proposal evidence, requirement checks, and decision-ready comparisons into one focused workspace.</p>
+                <div class="auth-feature-grid">
+                    <div><i class="feature-icon feature-evidence">01</i><b>Evidence-led</b><span>Trace every finding to source material.</span></div>
+                    <div><i class="feature-icon feature-score">02</i><b>Consistent scoring</b><span>Evaluate every proposal against the same rules.</span></div>
+                    <div><i class="feature-icon feature-ready">03</i><b>Decision ready</b><span>Surface risks and trade-offs with clarity.</span></div>
+                </div>
+                <div class="auth-intelligence-preview">
+                    <div class="preview-head"><span>LIVE DECISION BRIEF</span><b>3 vendors evaluated</b></div>
+                    <div class="preview-row preview-winner"><span class="preview-rank">01</span><span class="preview-vendor">NimbusDesk <small>Recommended</small></span><strong>91.4</strong><div class="preview-bar"><i style="width:91.4%"></i></div></div>
+                    <div class="preview-row"><span class="preview-rank">02</span><span class="preview-vendor">QuickServe</span><strong>84.7</strong><div class="preview-bar"><i style="width:84.7%"></i></div></div>
+                    <div class="preview-row"><span class="preview-rank">03</span><span class="preview-vendor">Orbitel</span><strong>78.2</strong><div class="preview-bar"><i style="width:78.2%"></i></div></div>
+                </div>
+                <div class="auth-trust"><span class="auth-trust-dot"></span> Your analysis workspace is private to your account</div>
             </div>''',
             unsafe_allow_html=True,
         )
+    with access:
+        st.markdown('''<div class="auth-access-heading"><div class="auth-mark">VP</div><div><div class="auth-name">Welcome to Vendor Proposal AI</div><div class="auth-kicker">SECURE ACCOUNT ACCESS</div></div></div><div class="auth-access-copy">Your procurement workspace, ready when you are.</div>''', unsafe_allow_html=True)
         sign_in_tab, sign_up_tab = st.tabs(["Sign in", "Create account"])
         with sign_in_tab:
             _render_sign_in()
         with sign_up_tab:
             _render_sign_up()
-        st.caption("Accounts and saved analyses are stored locally. Email delivery uses your configured SMTP/Gmail account.")
+        st.markdown('<div class="auth-footnote">Your account and saved analyses are protected in your private workspace.</div>', unsafe_allow_html=True)
 
 
 def _render_sign_in() -> None:
