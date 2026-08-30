@@ -224,7 +224,7 @@ streamlit run app.py
 ## Testing
 
 ```bash
-pytest tests -q
+pytest -v
 ```
 
 The current suite contains **51 tests** covering PDF parsing, chunking, schemas, extraction and repair, matching, scoring, risk rules, retrieval, authentication, and SQLite persistence. Live Groq calls are mocked in tests; retrieval tests use the hash embedding fallback and an in-memory Chroma client.
