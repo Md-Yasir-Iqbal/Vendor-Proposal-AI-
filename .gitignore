@@ -26,3 +26,6 @@ data/chroma/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# React build tooling (the compiled frontend/build assets are intentionally committed)
+frontend/node_modules/

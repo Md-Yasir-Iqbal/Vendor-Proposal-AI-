@@ -10,7 +10,7 @@ import streamlit as st
 
 from app.auth.session import init_auth_state, is_authenticated, logout
 from app.auth.ui import render_login_page
-from app.ui import comparison, create_analysis, dashboard, home, recommendation, upload, vendor_details
+from app.ui import account, comparison, create_analysis, dashboard, evidence, history, home, recommendation, risk_analysis, upload, vendor_details
 from app.ui.styles import inject_css
 from app.utils.config import get_settings
 from app.utils.state import get_requirements, get_vendor_results, init_state, reset_everything
@@ -40,7 +40,11 @@ PAGES = {
     "Analysis Dashboard": dashboard,
     "Vendor Comparison": comparison,
     "Vendor Details": vendor_details,
+    "Risk Analysis": risk_analysis,
+    "Evidence": evidence,
     "Recommendation": recommendation,
+    "Analysis History": history,
+    "Account": account,
 }
 
 # Allow other pages to programmatically navigate (e.g. after saving requirements).

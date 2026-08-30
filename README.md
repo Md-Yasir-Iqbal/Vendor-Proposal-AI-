@@ -115,6 +115,14 @@ This system provides a structured, repeatable workflow:
                    Streamlit Dashboard (7 pages)
 ```
 
+## Running the application
+
+Run the Streamlit application from the project root:
+
+```bash
+streamlit run app.py
+```
+
 ### AI Workflow
 
 The LLM (Groq) is used for exactly four things, each isolated behind its own module:

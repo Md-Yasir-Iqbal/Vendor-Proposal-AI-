@@ -97,6 +97,12 @@ CUSTOM_CSS = """
     }
     .evidence-meta { color: #6b7280; font-size: 0.78rem; margin-bottom: 0.25rem; }
     .evidence-text { color: #1f2937; font-size: 0.92rem; font-style: italic; }
+    .risk-vendor { margin-bottom: .35rem; color: var(--teal); font-family: 'DM Mono', monospace; font-size: .65rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+    .risk-meta { display: inline-block; margin-left: .45rem; color: #718287; font-size: .74rem; }
+    .risk-card p { margin: .55rem 0 .25rem; color: #53676b; line-height: 1.5; }
+    .risk-evidence { margin-top: .65rem; padding: .65rem .75rem; border-radius: .45rem; background: rgba(255,255,255,.66); color: #60757a; font-size: .78rem; font-style: italic; line-height: 1.45; }
+    .history-row { min-height: 3.9rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .65rem; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: 11px; background: #fff; box-shadow: 0 3px 10px rgba(17,49,46,.025); }
+    .history-row b { color: var(--ink); font-size: .95rem; }.history-row span { color: var(--muted); font-size: .78rem; }
 
     .rank-1 { background: linear-gradient(90deg, #e5f4ee 0%, #ffffff 74%); border-left: 4px solid var(--teal); }
     .rank-card {
@@ -254,6 +260,7 @@ DARK_WORKSPACE_CSS = """
 .stApp:has(.workspace-dark) .metric-card:before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:#3cb99d; }.stApp:has(.workspace-dark) .metric-card { position:relative; overflow:hidden; }.stApp:has(.workspace-dark) .metric-label,.stApp:has(.workspace-dark) .metric-sub,.stApp:has(.workspace-dark) .evidence-meta { color:#89a0a8; }.stApp:has(.workspace-dark) .metric-value { color:#eff7f5; }
 .stApp:has(.workspace-dark) .rank-1 { background:linear-gradient(90deg,#153c3e,#111c25 74%); border-left-color:#55cfaf; }.stApp:has(.workspace-dark) .risk-card { background:#111c25; border-left-color:#48626b; }.stApp:has(.workspace-dark) .risk-warning { background:#2b171b; border-left-color:#f06c72; }.stApp:has(.workspace-dark) .risk-review { background:#2b2517; border-left-color:#e6b450; }.stApp:has(.workspace-dark) .risk-info { background:#14212b; border-left-color:#719aaa; }.stApp:has(.workspace-dark) .evidence-text { color:#cbd8da; }
 .stApp:has(.workspace-dark) .badge-pass { background:#123b35; color:#6ee1c0; }.stApp:has(.workspace-dark) .badge-fail { background:#421f27; color:#ff9ca2; }.stApp:has(.workspace-dark) .badge-review { background:#3c311b; color:#f4c968; }.stApp:has(.workspace-dark) .badge-missing { background:#26333c; color:#adbdc4; }
+.stApp:has(.workspace-dark) .history-row { background:#111c25; border-color:#263c46; }.stApp:has(.workspace-dark) .history-row b { color:#e7eef1; }.stApp:has(.workspace-dark) .history-row span,.stApp:has(.workspace-dark) .risk-meta,.stApp:has(.workspace-dark) .risk-card p { color:#adbdc4; }.stApp:has(.workspace-dark) .risk-evidence { background:#0d171f; color:#b7c7c9; }
 .stApp:has(.workspace-dark) [data-testid="stWidgetLabel"] p,.stApp:has(.workspace-dark) [data-testid="stCheckbox"] label span { color:#c8d8da !important; }
 .stApp:has(.workspace-dark) [data-testid="stTextInput"] input,.stApp:has(.workspace-dark) [data-testid="stNumberInput"] input,.stApp:has(.workspace-dark) [data-baseweb="select"] > div { color:#edf5f3 !important; -webkit-text-fill-color:#edf5f3 !important; border-color:#304650 !important; background:#0d171f !important; caret-color:#70d8c1; }
 .stApp:has(.workspace-dark) [data-testid="stNumberInput"] button { color:#c9d8d9 !important; background:#17252f !important; border-color:#304650 !important; }.stApp:has(.workspace-dark) [data-testid="stCheckbox"] input { accent-color:#48bca2; }
