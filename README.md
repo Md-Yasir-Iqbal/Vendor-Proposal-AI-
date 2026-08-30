@@ -1,4 +1,4 @@
-# AI-Powered Vendor Proposal Analysis and Decision Support System
+# Vendorlens
 
 An AI-assisted, evidence-grounded system that helps procurement teams compare multiple
 vendor proposals against a shared set of requirements — turning unstructured PDF proposals

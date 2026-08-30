@@ -66,6 +66,8 @@ CUSTOM_CSS = """
     [data-testid="stForm"] h4:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
     [data-testid="stWidgetLabel"] p { color: #3e565a; font-size: .84rem; font-weight: 600; }
     [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input, [data-baseweb="select"] > div { border-radius: .5rem !important; border-color: #cddbd7 !important; background: #fcfdfc !important; }
+    [data-testid="stTextInput"] input, [data-testid="stNumberInput"] input { color: #192d34 !important; caret-color: #087b71 !important; -webkit-text-fill-color: #192d34 !important; }
+    [data-testid="stTextInput"] input::placeholder { color: #7c8e94 !important; opacity: 1 !important; -webkit-text-fill-color: #7c8e94 !important; }
     [data-testid="stFileUploader"] { background: #fff; border: 1px dashed #a7c8bf; border-radius: 14px; padding: .7rem; }
     [data-testid="stFileUploaderDropzone"] { min-height: 180px; border: 0 !important; background: linear-gradient(135deg, #f4fbf8, #fbfdfc) !important; border-radius: 10px; }
     [data-testid="stFileUploaderDropzone"] small { color: var(--muted) !important; }
@@ -156,14 +158,117 @@ CUSTOM_CSS = """
     [data-testid="stFormSubmitButton"] button { background: #087b71 !important; border-color: #087b71 !important; box-shadow: 0 9px 18px rgba(8,123,113,.18); }
     [data-testid="stFormSubmitButton"] button:hover { background: #055c56 !important; border-color: #055c56 !important; }
     .auth-footnote { margin: 1rem 0 2rem; color: #78908e; font-size: .76rem; line-height: 1.45; }
+
+    /* Complete authenticated dark theme. Light mode remains defined above. */
+    @media (prefers-color-scheme: dark) {
+    .stApp:has([data-testid="stSidebar"]) { background: #0b1219; color: #e7eef1; }
+    .stApp:has([data-testid="stSidebar"]) .main { background: radial-gradient(circle at 78% -12%, rgba(30,118,119,.18), transparent 28rem), #0b1219; }
+    .stApp:has([data-testid="stSidebar"]) .block-container { max-width: 1380px; }
+    .stApp:has([data-testid="stSidebar"]) h1,
+    .stApp:has([data-testid="stSidebar"]) h2,
+    .stApp:has([data-testid="stSidebar"]) h3,
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stMarkdownContainer"] { color: #e7eef1; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stMarkdownContainer"] p { color: #adbdc4; }
+    .stApp:has([data-testid="stSidebar"]) .page-hero { border-color: #23434b; background: linear-gradient(115deg, #112a31 0%, #101d26 58%, #171b22 100%); box-shadow: 0 15px 38px rgba(0,0,0,.2); }
+    .stApp:has([data-testid="stSidebar"]) .page-hero:after { border-color: rgba(105,205,191,.18); box-shadow: 0 0 0 1.7rem rgba(36,130,124,.07), 0 0 0 3.4rem rgba(36,130,124,.04); }
+    .stApp:has([data-testid="stSidebar"]) .page-eyebrow { color: #71d6c2; }
+    .stApp:has([data-testid="stSidebar"]) .page-title { color: #f2f7f7; }
+    .stApp:has([data-testid="stSidebar"]) .page-description { color: #a9c0c3; }
+    .stApp:has([data-testid="stSidebar"]) .section-heading { color: #e8f1f1; }
+    .stApp:has([data-testid="stSidebar"]) .section-heading:after { background: #243942; }
+    .stApp:has([data-testid="stSidebar"]) .metric-card,
+    .stApp:has([data-testid="stSidebar"]) .content-panel,
+    .stApp:has([data-testid="stSidebar"]) .rank-card,
+    .stApp:has([data-testid="stSidebar"]) .evidence-card,
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stForm"],
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stFileUploader"],
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stVerticalBlockBorderWrapper"] { background: #111c25; border-color: #263c46; box-shadow: 0 9px 24px rgba(0,0,0,.16); }
+    .stApp:has([data-testid="stSidebar"]) .metric-card { position: relative; overflow: hidden; }
+    .stApp:has([data-testid="stSidebar"]) .metric-card:before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; background: #3cb99d; }
+    .stApp:has([data-testid="stSidebar"]) .metric-label { color: #88a2aa; }
+    .stApp:has([data-testid="stSidebar"]) .metric-value { color: #eff7f5; }
+    .stApp:has([data-testid="stSidebar"]) .metric-sub,
+    .stApp:has([data-testid="stSidebar"]) .evidence-meta { color: #89a0a8; }
+    .stApp:has([data-testid="stSidebar"]) .panel-kicker { color: #71d6c2; }
+    .stApp:has([data-testid="stSidebar"]) .panel-title { color: #edf5f3; }
+    .stApp:has([data-testid="stSidebar"]) .workflow-step { color: #afc1c5; }
+    .stApp:has([data-testid="stSidebar"]) .workflow-number { background: #173e43; color: #7bdac5; }
+    .stApp:has([data-testid="stSidebar"]) .rank-1 { background: linear-gradient(90deg, #153c3e, #111c25 74%); border-left-color: #55cfaf; }
+    .stApp:has([data-testid="stSidebar"]) .risk-card { border-left-color: #48626b; background: #111c25; box-shadow: none; }
+    .stApp:has([data-testid="stSidebar"]) .risk-warning { background: #2b171b; border-left-color: #f06c72; }
+    .stApp:has([data-testid="stSidebar"]) .risk-review { background: #2b2517; border-left-color: #e6b450; }
+    .stApp:has([data-testid="stSidebar"]) .risk-info { background: #14212b; border-left-color: #719aaa; }
+    .stApp:has([data-testid="stSidebar"]) .evidence-text { color: #cbd8da; }
+    .stApp:has([data-testid="stSidebar"]) .badge-pass { background: #123b35; color: #6ee1c0; }
+    .stApp:has([data-testid="stSidebar"]) .badge-fail { background: #421f27; color: #ff9ca2; }
+    .stApp:has([data-testid="stSidebar"]) .badge-review { background: #3c311b; color: #f4c968; }
+    .stApp:has([data-testid="stSidebar"]) .badge-missing { background: #26333c; color: #adbdc4; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stWidgetLabel"] p { color: #c8d8da; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stTextInput"] input,
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stNumberInput"] input,
+    .stApp:has([data-testid="stSidebar"]) [data-baseweb="select"] > div { color: #edf5f3 !important; border-color: #304650 !important; background: #0d171f !important; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stTextInput"] input:focus,
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stNumberInput"] input:focus { border-color: #49bda4 !important; box-shadow: 0 0 0 1px #49bda4 !important; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stFileUploaderDropzone"] { background: #0d171f !important; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stFileUploaderDropzone"] * { color: #b3c7c8 !important; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stAlert"] { border-color: #294451; background: #14242d; color: #d0e0e0; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stDataFrame"] { border-color: #304650; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stSidebar"] { background: linear-gradient(180deg, #0c171f 0%, #091218 100%); border-right: 1px solid #20333d; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background: linear-gradient(90deg, rgba(73,189,164,.18), rgba(73,189,164,.04)); border-left: 2px solid #52c9ae; border-radius: 0 .45rem .45rem 0; }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background: rgba(255,255,255,.06); }
+    .stApp:has([data-testid="stSidebar"]) [data-testid="stSidebar"] .stButton button { border-color: #35515b; }
+    .stApp:has([data-testid="stSidebar"]) .disclaimer-box { background: #14242d; border-color: #294451; color: #afc1c5; }
+    }
+
+    /* Inactive legacy mixed-theme fallback; the complete dark system above owns Dark mode. */
+    @media (max-width: 0px) {
+        html, body, .stApp { color-scheme: light !important; background: #f7f9f6 !important; }
+        [data-testid="stAppViewContainer"], [data-testid="stHeader"] { background: #f7f9f6 !important; }
+        [data-testid="stTextInput"] input,
+        [data-testid="stNumberInput"] input,
+        [data-baseweb="input"] input,
+        [data-baseweb="select"] > div { color: #192d34 !important; background: #fcfdfc !important; -webkit-text-fill-color: #192d34 !important; }
+        [data-testid="stNumberInput"] button { color: #26383f !important; background: #eef2f4 !important; }
+        [data-testid="stWidgetLabel"] p,
+        [data-testid="stCheckbox"] label span,
+        [data-testid="stMarkdownContainer"] p { color: #29424a !important; }
+        [data-testid="stDataFrame"] { background: #fff !important; }
+    }
     hr { border-color: var(--line); margin: 1.6rem 0; }
     @media (max-width: 760px) { .block-container { padding: 1.5rem 1rem 3rem; } h1 { font-size: 2rem !important; } .auth-page-label { margin-bottom: 1rem; } .auth-showcase { min-height: auto; padding: 2rem 1.5rem; } .auth-showcase h1 { font-size: 2.65rem !important; } .auth-feature-grid { grid-template-columns: 1fr; margin-top: 2rem; } .auth-access-heading { margin: 2rem 0 1.5rem; } .auth-access-copy { margin-left: 0; } .auth-intelligence-preview { display: none; } }
 </style>
 """
 
 
-def inject_css() -> None:
+DARK_WORKSPACE_CSS = """
+<style>
+/* Explicit workspace dark mode, independent of Streamlit's built-in menu theme. */
+.stApp:has(.workspace-dark) { background: #0b1219 !important; color: #e7eef1; }
+.stApp:has(.workspace-dark) .main { background: radial-gradient(circle at 78% -12%, rgba(30,118,119,.18), transparent 28rem), #0b1219; }
+.stApp:has(.workspace-dark) h1, .stApp:has(.workspace-dark) h2, .stApp:has(.workspace-dark) h3, .stApp:has(.workspace-dark) [data-testid="stMarkdownContainer"] { color: #e7eef1; }
+.stApp:has(.workspace-dark) [data-testid="stMarkdownContainer"] p { color: #adbdc4; }
+.stApp:has(.workspace-dark) .page-hero { border-color: #23434b; background: linear-gradient(115deg, #112a31, #101d26 58%, #171b22); }
+.stApp:has(.workspace-dark) .page-title { color: #f2f7f7; }.stApp:has(.workspace-dark) .page-description { color: #a9c0c3; }.stApp:has(.workspace-dark) .page-eyebrow,.stApp:has(.workspace-dark) .panel-kicker { color: #71d6c2; }
+.stApp:has(.workspace-dark) .section-heading,.stApp:has(.workspace-dark) .panel-title { color: #edf5f3; }.stApp:has(.workspace-dark) .section-heading:after { background: #243942; }
+.stApp:has(.workspace-dark) .metric-card,.stApp:has(.workspace-dark) .content-panel,.stApp:has(.workspace-dark) .rank-card,.stApp:has(.workspace-dark) .evidence-card,.stApp:has(.workspace-dark) [data-testid="stForm"],.stApp:has(.workspace-dark) [data-testid="stFileUploader"],.stApp:has(.workspace-dark) [data-testid="stVerticalBlockBorderWrapper"] { background: #111c25; border-color: #263c46; box-shadow: 0 9px 24px rgba(0,0,0,.16); }
+.stApp:has(.workspace-dark) .metric-card:before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:#3cb99d; }.stApp:has(.workspace-dark) .metric-card { position:relative; overflow:hidden; }.stApp:has(.workspace-dark) .metric-label,.stApp:has(.workspace-dark) .metric-sub,.stApp:has(.workspace-dark) .evidence-meta { color:#89a0a8; }.stApp:has(.workspace-dark) .metric-value { color:#eff7f5; }
+.stApp:has(.workspace-dark) .rank-1 { background:linear-gradient(90deg,#153c3e,#111c25 74%); border-left-color:#55cfaf; }.stApp:has(.workspace-dark) .risk-card { background:#111c25; border-left-color:#48626b; }.stApp:has(.workspace-dark) .risk-warning { background:#2b171b; border-left-color:#f06c72; }.stApp:has(.workspace-dark) .risk-review { background:#2b2517; border-left-color:#e6b450; }.stApp:has(.workspace-dark) .risk-info { background:#14212b; border-left-color:#719aaa; }.stApp:has(.workspace-dark) .evidence-text { color:#cbd8da; }
+.stApp:has(.workspace-dark) .badge-pass { background:#123b35; color:#6ee1c0; }.stApp:has(.workspace-dark) .badge-fail { background:#421f27; color:#ff9ca2; }.stApp:has(.workspace-dark) .badge-review { background:#3c311b; color:#f4c968; }.stApp:has(.workspace-dark) .badge-missing { background:#26333c; color:#adbdc4; }
+.stApp:has(.workspace-dark) [data-testid="stWidgetLabel"] p,.stApp:has(.workspace-dark) [data-testid="stCheckbox"] label span { color:#c8d8da !important; }
+.stApp:has(.workspace-dark) [data-testid="stTextInput"] input,.stApp:has(.workspace-dark) [data-testid="stNumberInput"] input,.stApp:has(.workspace-dark) [data-baseweb="select"] > div { color:#edf5f3 !important; -webkit-text-fill-color:#edf5f3 !important; border-color:#304650 !important; background:#0d171f !important; caret-color:#70d8c1; }
+.stApp:has(.workspace-dark) [data-testid="stNumberInput"] button { color:#c9d8d9 !important; background:#17252f !important; border-color:#304650 !important; }.stApp:has(.workspace-dark) [data-testid="stCheckbox"] input { accent-color:#48bca2; }
+.stApp:has(.workspace-dark) [data-testid="stFileUploaderDropzone"] { background:#0d171f !important; }.stApp:has(.workspace-dark) [data-testid="stFileUploaderDropzone"] * { color:#b3c7c8 !important; }.stApp:has(.workspace-dark) [data-testid="stAlert"],.stApp:has(.workspace-dark) .disclaimer-box { background:#14242d; border-color:#294451; color:#d0e0e0; }
+.stApp:has(.workspace-dark) [data-testid="stSidebar"] { background:linear-gradient(180deg,#0c171f,#091218); border-right:1px solid #20333d; }.stApp:has(.workspace-dark) [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background:linear-gradient(90deg,rgba(73,189,164,.18),rgba(73,189,164,.04)); border-left:2px solid #52c9ae; }
+.stApp:has(.workspace-dark) [data-testid="stFormSubmitButton"] button,.stApp:has(.workspace-dark) .stButton button[kind="primary"] { color:#061316; background:#5fd0b4; border-color:#5fd0b4; }.stApp:has(.workspace-dark) [data-testid="stProgressBar"] > div > div { background:linear-gradient(90deg,#36a98f,#70d8c1) !important; }
+</style>
+"""
+
+
+def inject_css(dark_workspace: bool = False) -> None:
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    st.markdown(DARK_WORKSPACE_CSS, unsafe_allow_html=True)
+    if dark_workspace:
+        st.markdown('<div class="workspace-dark"></div>', unsafe_allow_html=True)
 
 
 def metric_card(label: str, value: str, sub: str = "") -> str:

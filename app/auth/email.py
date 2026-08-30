@@ -18,10 +18,10 @@ def send_welcome_email(recipient: str) -> str | None:
     if not (smtp_host and smtp_username and smtp_password and smtp_from_email):
         return "Account created, but email is not configured yet. Add the SMTP/Gmail settings to .env and restart the app."
     message = EmailMessage()
-    message["Subject"] = "Welcome to Vendor Proposal AI"
+    message["Subject"] = "Welcome to Vendorlens"
     message["From"] = smtp_from_email
     message["To"] = recipient
-    message.set_content("Your Vendor Proposal AI account is ready. You can now sign in and begin a vendor analysis.")
+    message.set_content("Your Vendorlens account is ready. You can now sign in and begin a vendor analysis.")
     try:
         with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
             server.starttls()

@@ -11,7 +11,7 @@ from app.auth.session import login
 def render_login_page() -> None:
     """Render the only page visible before a user authenticates."""
     st.markdown('<div class="auth-topline"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="auth-page-label">VENDOR PROPOSAL AI · SECURE WORKSPACE</div>', unsafe_allow_html=True)
+    st.markdown('<div class="auth-page-label">VENDORLENS · SECURE WORKSPACE</div>', unsafe_allow_html=True)
     showcase, access = st.columns([1.18, 0.82], gap="large")
     with showcase:
         st.markdown(
@@ -35,7 +35,7 @@ def render_login_page() -> None:
             unsafe_allow_html=True,
         )
     with access:
-        st.markdown('''<div class="auth-access-heading"><div class="auth-mark">VP</div><div><div class="auth-name">Welcome to Vendor Proposal AI</div><div class="auth-kicker">SECURE ACCOUNT ACCESS</div></div></div><div class="auth-access-copy">Your procurement workspace, ready when you are.</div>''', unsafe_allow_html=True)
+        st.markdown('''<div class="auth-access-heading"><div class="auth-mark">VL</div><div><div class="auth-name">Welcome to Vendorlens</div><div class="auth-kicker">SECURE ACCOUNT ACCESS</div></div></div><div class="auth-access-copy">Your procurement workspace, ready when you are.</div>''', unsafe_allow_html=True)
         sign_in_tab, sign_up_tab = st.tabs(["Sign in", "Create account"])
         with sign_in_tab:
             _render_sign_in()

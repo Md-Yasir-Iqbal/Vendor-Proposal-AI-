@@ -16,7 +16,7 @@ from app.utils.config import get_settings
 from app.utils.state import get_requirements, get_vendor_results, init_state, reset_everything
 
 st.set_page_config(
-    page_title="Vendor Proposal Analysis",
+    page_title="Vendorlens",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -51,9 +51,9 @@ with st.sidebar:
     st.markdown(
         """
         <div class="sidebar-brand">
-            <div class="sidebar-mark">VP</div>
+            <div class="sidebar-mark">VL</div>
             <div>
-                <div class="sidebar-title">Vendor Proposal AI</div>
+                <div class="sidebar-title">Vendorlens</div>
                 <div class="sidebar-subtitle">PROCUREMENT INTELLIGENCE</div>
             </div>
         </div>
