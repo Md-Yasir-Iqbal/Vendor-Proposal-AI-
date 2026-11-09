@@ -10,7 +10,7 @@ import streamlit as st
 
 from app.auth.session import init_auth_state, is_authenticated, logout
 from app.auth.ui import render_login_page
-from app.ui import account, comparison, create_analysis, dashboard, evidence, history, home, recommendation, risk_analysis, upload, vendor_details
+from app.ui import account, comparison, create_analysis, dashboard, evidence, history, home, recommendation, review, risk_analysis, upload, vendor_details
 from app.ui.styles import inject_css
 from app.utils.config import get_settings
 from app.utils.state import get_requirements, get_vendor_results, init_state, reset_everything
@@ -21,8 +21,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-inject_css()
 init_auth_state()
+inject_css()
 
 if not is_authenticated():
     render_login_page()
@@ -40,6 +40,7 @@ PAGES = {
     "Analysis Dashboard": dashboard,
     "Vendor Comparison": comparison,
     "Vendor Details": vendor_details,
+    "Human Review": review,
     "Risk Analysis": risk_analysis,
     "Evidence": evidence,
     "Recommendation": recommendation,
@@ -55,7 +56,14 @@ with st.sidebar:
     st.markdown(
         """
         <div class="sidebar-brand">
-            <div class="sidebar-mark">VL</div>
+            <div class="sidebar-mark" role="img" aria-label="Vendorlens logo">
+                <svg class="sidebar-logo" viewBox="0 0 48 48" aria-hidden="true">
+                    <circle cx="24" cy="24" r="20.5" fill="#102F35" stroke="#42C7BC" stroke-width="2"/>
+                    <path d="M10.5 13.5h7.2l6.7 20.2 6.1-14.8h7.2L27.5 40h-6.2L10.5 13.5Z" fill="#27B9AD"/>
+                    <path d="M30.5 14h7v18.3h-14l2.7-6h7.3V14Z" fill="#E9B949"/>
+                    <circle cx="37.6" cy="34.5" r="3.2" fill="#F5FBF9"/>
+                </svg>
+            </div>
             <div>
                 <div class="sidebar-title">Vendorlens</div>
                 <div class="sidebar-subtitle">PROCUREMENT INTELLIGENCE</div>

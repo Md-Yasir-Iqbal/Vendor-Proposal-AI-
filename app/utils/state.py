@@ -8,7 +8,7 @@ data/chroma/ across runs.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import streamlit as st
 
@@ -18,7 +18,7 @@ from app.retrieval.chroma_store import ChromaStore
 from app.schemas.analysis import RecommendationResult, VendorAnalysisResult
 from app.schemas.evidence import DocumentChunk
 from app.schemas.requirements import RequirementsConfig
-from app.schemas.vendor import VendorDocumentMeta
+from app.schemas.vendor import VendorDocumentMeta, VendorProposal
 from app.utils.config import get_settings
 from app.utils.helpers import generate_id
 
@@ -30,6 +30,8 @@ def init_state() -> None:
         "documents_meta": [],  # List[VendorDocumentMeta]
         "all_chunks": [],  # List[DocumentChunk]
         "vendor_results": {},  # Dict[str, VendorAnalysisResult]
+        "original_proposals": {},  # Dict[str, VendorProposal] before reviewer edits
+        "review_corrections": {},  # Dict[str, List[Dict[str, Any]]]
         "recommendation": None,  # RecommendationResult
         "processing_log": [],  # List[str]
     }
@@ -89,7 +91,25 @@ def get_vendor_results() -> Dict[str, VendorAnalysisResult]:
 
 def set_vendor_result(vendor_name: str, result: VendorAnalysisResult) -> None:
     st.session_state.setdefault("vendor_results", {})[vendor_name] = result
+    st.session_state.setdefault("original_proposals", {}).setdefault(
+        vendor_name, result.proposal.model_copy(deep=True)
+    )
     _persist_current_analysis()
+
+
+def get_original_proposal(vendor_name: str) -> Optional[VendorProposal]:
+    return st.session_state.get("original_proposals", {}).get(vendor_name)
+
+
+def get_review_corrections(vendor_name: str) -> List[Dict[str, Any]]:
+    return st.session_state.get("review_corrections", {}).get(vendor_name, [])
+
+
+def record_review_correction(vendor_name: str, fields: List[str]) -> None:
+    """Record a small audit trail for a reviewer-approved correction."""
+    st.session_state.setdefault("review_corrections", {}).setdefault(vendor_name, []).append(
+        {"fields": fields}
+    )
 
 
 def get_recommendation() -> Optional[RecommendationResult]:
@@ -115,6 +135,11 @@ def _persist_current_analysis() -> None:
             name: result.model_dump(mode="json")
             for name, result in st.session_state.get("vendor_results", {}).items()
         },
+        "original_proposals": {
+            name: proposal.model_dump(mode="json")
+            for name, proposal in st.session_state.get("original_proposals", {}).items()
+        },
+        "review_corrections": st.session_state.get("review_corrections", {}),
         "recommendation": (
             st.session_state["recommendation"].model_dump(mode="json")
             if st.session_state.get("recommendation")
@@ -147,6 +172,11 @@ def restore_saved_analysis(user_email: str, project_id: str) -> bool:
             name: VendorAnalysisResult.model_validate(result)
             for name, result in snapshot.get("vendor_results", {}).items()
         }
+        st.session_state["original_proposals"] = {
+            name: VendorProposal.model_validate(proposal)
+            for name, proposal in snapshot.get("original_proposals", {}).items()
+        }
+        st.session_state["review_corrections"] = snapshot.get("review_corrections", {})
         recommendation_data = snapshot.get("recommendation")
         st.session_state["recommendation"] = RecommendationResult.model_validate(recommendation_data) if recommendation_data else None
         st.session_state["processing_log"] = []
@@ -160,6 +190,8 @@ def reset_analysis() -> None:
     st.session_state["documents_meta"] = []
     st.session_state["all_chunks"] = []
     st.session_state["vendor_results"] = {}
+    st.session_state["original_proposals"] = {}
+    st.session_state["review_corrections"] = {}
     st.session_state["recommendation"] = None
     try:
         get_chroma_store(st.session_state["project_id"]).reset_project()
