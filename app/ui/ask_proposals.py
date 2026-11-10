@@ -41,14 +41,14 @@ def _render_panel() -> None:
         st.warning("Clear this analysis conversation? This cannot affect other analyses.")
         confirm, cancel = st.columns(2)
         if confirm.button("Confirm", type="primary", key=f"confirm_clear_button_{analysis_id}", width="stretch"):
-            chat_database.clear_conversation(user, conversation_id)
+            _clear_messages(user, conversation_id, analysis_id)
             st.session_state.pop(clear_flag, None)
             st.rerun()
         if cancel.button("Cancel", key=f"cancel_clear_button_{analysis_id}", width="stretch"):
             st.session_state.pop(clear_flag, None)
             st.rerun()
 
-    messages = chat_database.load_conversation_messages(user, conversation_id)
+    messages = _load_messages(user, conversation_id, analysis_id)
     _render_messages(messages)
     if not results:
         st.info("Upload and analyze proposals before asking a question.")
@@ -66,7 +66,7 @@ def _render_panel() -> None:
 def _answer(question: str, analysis_id: str, conversation_id: str, results, messages: list[dict], project_name: str | None) -> None:
     # Capture analysis/conversation IDs before the request. The response is
     # therefore saved against this analysis even if the workspace changes.
-    chat_database.save_conversation_message(conversation_id, f"msg_{uuid4().hex}", "user", question)
+    _save_message(conversation_id, f"msg_{uuid4().hex}", "user", question, analysis_id=analysis_id)
     context = [{"role": item["role"], "content": item["content"]} for item in messages[-8:]]
     with st.spinner("Selecting tools and retrieving verified proposal evidence..."):
         answer = answer_proposal_question(
@@ -82,8 +82,9 @@ def _answer(question: str, analysis_id: str, conversation_id: str, results, mess
         "tools_used": answer.tools_used,
         "execution_details": answer.execution_details,
     }
-    chat_database.save_conversation_message(
-        conversation_id, f"msg_{uuid4().hex}", "assistant", answer.answer, citations, metadata
+    _save_message(
+        conversation_id, f"msg_{uuid4().hex}", "assistant", answer.answer,
+        citations, metadata, analysis_id
     )
     st.rerun()
 
@@ -99,12 +100,59 @@ def _get_conversation(user: str, analysis_id: str) -> str:
         return helper(user, analysis_id)
     # Compatibility path for an older database module; it is only relevant
     # during a stale deployment and uses the same SQLite persistence helpers.
-    conversations = chat_database.list_conversations(user, analysis_id)
+    list_helper = getattr(chat_database, "list_conversations", None)
+    if list_helper is None:
+        state_key = f"assistant_temporary_conversation_{analysis_id}"
+        return st.session_state.setdefault(state_key, f"temporary_{uuid4().hex}")
+    conversations = list_helper(user, analysis_id)
     if conversations:
         return conversations[0]["conversation_id"]
     conversation_id = f"conv_{uuid4().hex}"
-    chat_database.create_conversation(user, analysis_id, conversation_id)
+    create_helper = getattr(chat_database, "create_conversation", None)
+    if create_helper is not None:
+        create_helper(user, analysis_id, conversation_id)
     return conversation_id
+
+
+def _message_key(analysis_id: str) -> str:
+    return f"assistant_temporary_messages_{analysis_id}"
+
+
+def _load_messages(user: str, conversation_id: str, analysis_id: str) -> list[dict]:
+    loader = getattr(chat_database, "load_conversation_messages", None)
+    if loader is not None:
+        return loader(user, conversation_id)
+    return st.session_state.get(_message_key(analysis_id), [])
+
+
+def _save_message(
+    conversation_id: str,
+    message_id: str,
+    role: str,
+    content: str,
+    citations: list[dict] | None = None,
+    tool_metadata: dict | None = None,
+    analysis_id: str | None = None,
+) -> None:
+    saver = getattr(chat_database, "save_conversation_message", None)
+    if saver is not None:
+        saver(conversation_id, message_id, role, content, citations, tool_metadata)
+        return
+    # Compatibility only: prevents a stale Streamlit Cloud container from
+    # crashing. Normal current deployments use SQLite through the saver above.
+    key = _message_key(analysis_id or "unknown")
+    st.session_state.setdefault(key, []).append(
+        {"message_id": message_id, "role": role, "content": content,
+         "citations": citations or [], "tool_metadata": tool_metadata or {}}
+    )
+
+
+def _clear_messages(user: str, conversation_id: str, analysis_id: str) -> None:
+    clearer = getattr(chat_database, "clear_conversation", None)
+    if clearer is not None:
+        clearer(user, conversation_id)
+    else:
+        st.session_state[_message_key(analysis_id)] = []
 
 
 def _render_messages(messages: list[dict]) -> None:
