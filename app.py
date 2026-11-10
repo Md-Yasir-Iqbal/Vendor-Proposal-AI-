@@ -10,7 +10,7 @@ import streamlit as st
 
 from app.auth.session import init_auth_state, is_authenticated, logout
 from app.auth.ui import render_login_page
-from app.ui import account, comparison, create_analysis, dashboard, evidence, history, home, recommendation, review, risk_analysis, upload, vendor_details
+from app.ui import account, ask_proposals, comparison, create_analysis, dashboard, evidence, history, home, recommendation, review, risk_analysis, upload, vendor_details
 from app.ui.styles import inject_css
 from app.utils.config import get_settings
 from app.utils.state import get_requirements, get_vendor_results, init_state, reset_everything
@@ -96,5 +96,9 @@ with st.sidebar:
     if st.button("Start New Analysis", width="stretch"):
         reset_everything()
         st.rerun()
+
+toolbar_left, toolbar_right = st.columns([10, 1])
+with toolbar_right:
+    ask_proposals.render_launcher()
 
 PAGES[page].render()

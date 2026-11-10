@@ -58,6 +58,7 @@ Vendorlens separates those responsibilities:
 - A risk register with severity and available source evidence
 - An evidence browser with vendor, document, page, section, and source text
 - An evidence-backed recommendation brief
+- A persistent, cited Ask the Proposals conversation for each analysis
 - Authenticated, user-scoped saved analysis history
 
 ## How It Works
@@ -72,6 +73,16 @@ When a recommendation is generated, Vendorlens retrieves topic-relevant chunks f
 
 Vendor selection is determined in Python from the evaluated results. Groq is used only to write a plain-language recommendation narrative; if the LLM is unavailable, the app produces a deterministic fallback explanation.
 
+### Ask the Proposals agent
+
+Ask the Proposals is a bounded, read-only procurement assistant available from the application's header-level AI control. It uses the existing Groq client directly through custom Python orchestration; it does **not** use LangChain, CrewAI, LangGraph, or another agent framework.
+
+For each question, Groq selects only the relevant read-only tools. Python executes them against the already-computed analysis and uploaded proposal evidence, then Groq writes a cited answer from those actual results. The assistant can search Chroma evidence, calculate comparable three-year cost of ownership, inspect deterministic requirement outcomes, inspect risk results, and compare existing vendor scores. It cannot alter requirements, source documents, scores, rankings, recommendations, or procurement decisions.
+
+Financial arithmetic is deterministic: a three-year total is calculated only when quoted one-time cost, recurring cost, and recurrence frequency are available. Unknown taxes, additional charges, penalties, termination fees, or pricing frequencies are not invented.
+
+Each analysis has one SQLite-persisted conversation scoped to the signed-in user and analysis ID. Responses retain their own proposal citations and concise execution details. If Groq or retrieval is unavailable, the assistant returns a conservative fallback rather than presenting unsupported claims.
+
 ## AI vs Deterministic Logic
 
 | Capability | Implementation | Role |
@@ -84,6 +95,7 @@ Vendor selection is determined in Python from the evaluated results. Groq is use
 | Vendor selection | Python | Selects the recommended vendor from the ranked evaluated results. |
 | Rule-based risks | Python | Flags defined commercial, compliance, support, and information risks. |
 | Evidence retrieval | Chroma | Finds relevant proposal chunks with metadata. |
+| Ask the Proposals agent | Groq + custom read-only Python tool orchestration | Answers proposal questions using real evidence, costs, requirements, risks, and scores; does not modify analysis state. |
 | Recommendation narrative | Groq or Python fallback | Explains the computed outcome; does not decide it. |
 
 ## Architecture
@@ -92,7 +104,7 @@ Vendor selection is determined in Python from the evaluated results. Groq is use
 Vendor Proposal PDFs
         │
         ▼
-PDF Parsing → Cleaning + Page/Section Chunking
+PDF Parsing → Cleaning + Page/Section Chunking 
         ├──────────────────┬──────────────────┐
         ▼                  ▼                  │
 LLM Extraction       Embeddings → Chroma      │
@@ -227,7 +239,7 @@ streamlit run app.py
 pytest -v
 ```
 
-The current suite contains **51 tests** covering PDF parsing, chunking, schemas, extraction and repair, matching, scoring, risk rules, retrieval, authentication, and SQLite persistence. Live Groq calls are mocked in tests; retrieval tests use the hash embedding fallback and an in-memory Chroma client.
+The current suite contains **56 tests** covering PDF parsing, chunking, schemas, extraction and repair, matching, scoring, risk rules, retrieval, authentication, SQLite persistence, review evidence, read-only agent tools, deterministic three-year cost calculation, and analysis-specific conversation persistence. Live Groq calls are replaced by local test doubles; retrieval tests use the hash embedding fallback and an in-memory Chroma client.
 
 ## Requirement Matching & Scoring
 
