@@ -107,7 +107,13 @@ def _generate(valid_results) -> None:
 
     store = get_chroma_store(st.session_state["project_id"])
     try:
-        evidence = get_recommendation_evidence(store, recommended_vendor, top_k=4)
+        selected_result = next((result for result in ranked if result.vendor_name == recommended_vendor), None)
+        evidence = get_recommendation_evidence(
+            store,
+            recommended_vendor,
+            top_k=4,
+            source_documents=selected_result.source_documents if selected_result else None,
+        )
     except Exception:  # noqa: BLE001
         evidence = []
 

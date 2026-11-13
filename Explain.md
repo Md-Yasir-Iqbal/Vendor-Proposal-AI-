@@ -42,7 +42,7 @@ Recommendation evidence retrieval (RAG)
 Groq narrative or Python fallback explanation
                      |
                      v
-Streamlit dashboard + SQLite saved history
+Ask the Proposals agent / Streamlit dashboard + SQLite saved history
 ```
 
 ## 4. Technology used and why
@@ -61,6 +61,8 @@ Streamlit dashboard + SQLite saved history
 | PBKDF2-HMAC-SHA256 | Password security | Stores salted password hashes instead of plain-text passwords. |
 | Gmail SMTP + STARTTLS | Welcome email | Sends an optional account-created notification through Gmail using an App Password. |
 | pytest | Testing | Tests parsing, validation, extraction repair, matching, scoring, retrieval, authentication, persistence, and review evidence. |
+| Custom Python agent loop | Ask the Proposals | Lets Groq select a bounded set of read-only procurement tools without adding LangChain or another agent framework. |
+| Extraction evaluation harness | Measured extraction quality | Compares real Groq extraction against manually checked PDF labels and writes reproducible CSV/Markdown reports. |
 
 ## 5. Which AI model is used, and for what?
 
@@ -77,6 +79,8 @@ Use this precise statement in a presentation:
 > “The project uses a Groq-hosted language model configured through `GROQ_MODEL`—for example, Llama 3.3 70B Versatile. I use it for structured proposal extraction, ambiguity-focused risk analysis, and recommendation writing. I do not use it for scoring, ranking, or selecting the winning vendor.”
 
 Your deployed environment may use a different value. Before presenting, check only the `GROQ_MODEL` line in your private `.env`; **never show or read out the API key**.
+
+For the currently saved five-PDF extraction evaluation, the configured model was `openai/gpt-oss-120b`. This is an evaluation-run detail, not a hard-coded application requirement.
 
 ### Embedding model for RAG
 
@@ -120,7 +124,60 @@ In this project:
 
 Important accuracy note: the **Recommendation** page uses semantic Chroma queries. The **Evidence Library** filters the stored in-session chunks directly, and **Human Review** ranks available chunks to show useful source context.
 
-## 8. Human-in-the-loop review explained
+## 8. Ask the Proposals agent
+
+Use this explanation:
+
+> “Ask the Proposals is a bounded, read-only procurement research agent. It is not allowed to change a score, requirement, ranking, or vendor decision. Groq interprets the user question and selects only from explicit Python tools. Python executes those tools on the existing analysis data and proposal evidence, then Groq writes a cited answer from the real results.”
+
+The agent does not use LangChain, CrewAI, LangGraph, or a multi-agent framework. The custom orchestration is deliberately small and easier to test, audit, and explain.
+
+| Tool | What it reads | What it never does |
+|---|---|---|
+| `search_evidence` | Chroma proposal chunks | Invent evidence or modify Chroma data |
+| `calculate_total_cost` | Validated proposal cost fields | Let the LLM perform arithmetic |
+| `check_requirements` | Existing deterministic requirement results | Recalculate or change results |
+| `analyze_vendor_risks` | Existing risk findings and missing information | Add unsupported risks |
+| `compare_vendors` | Existing score totals and mandatory-failure state | Change rankings or selection |
+| `inspect_project_context` | Saved project requirements | Treat configuration as proposal evidence |
+
+For a question such as “Which vendor is cheapest over three years?”, the agent can select cost calculation and evidence retrieval. The three-year calculation is made in Python:
+
+```text
+Three-year TCO = quoted one-time cost + (annual recurring cost × 3)
+```
+
+If the recurring frequency, an initial cost, or a recurring cost is not specified, the agent must say a comparable TCO cannot be calculated. It does not invent taxes, penalties, termination fees, or unquantified charges.
+
+### Agent citations and conversation history
+
+Each answer can show proposal citations containing vendor, original filename, page, section, and exact source text. The assistant stores one conversation per signed-in user and analysis in SQLite. This keeps a follow-up such as “What about its support?” connected to the correct analysis, while fresh retrieval remains the authority for factual claims.
+
+The expandable **Agent Execution Details** section is not hidden chain-of-thought. It shows concise execution facts: tools selected, tools run, retrieved-result counts, calculation activity, and whether Groq or a deterministic fallback produced the final response.
+
+## 9. Extraction evaluation and measured result
+
+Vendorlens includes a reproducible extraction-evaluation harness. The ground truth is manually checked against the original PDFs, then the script calls the real `extract_vendor_proposal` path and compares each output field.
+
+Run it with:
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\run_extraction_eval.py
+```
+
+It writes `evaluation/results.csv` for every proposal/field comparison and `evaluation/summary.md` for the report table. The comparison rules are explicit: numeric fields use a 0.01 tolerance after schema normalisation, booleans are exact, vendor names ignore case/extra whitespace, and an unspecified value is correct only when both ground truth and extraction are unspecified. Missing-when-present is reported separately from a wrong value.
+
+### Current measured result
+
+The completed hand-labelled run covers five synthetic vendor PDFs and 50 evaluated fields. With `openai/gpt-oss-120b` and `MAX_EXTRACTION_CHARS=16000`, it produced **45/50 correct fields, or 90.00% overall accuracy**.
+
+Be precise in a viva:
+
+> “The 90% figure is a reproducible result for five hand-labelled synthetic proposals and this specific model configuration. It is not a claim that the system will always be 90% accurate on arbitrary procurement documents.”
+
+The main observed weaknesses were recurring-cost interpretation, a conditional implementation timeline, and an SLA answer that included an extra verified response-time detail. This is why Vendorlens includes source evidence and Human Review instead of treating a schema-valid LLM extraction as final truth.
+
+## 10. Human-in-the-loop review explained
 
 LLMs can misread or miss a value in a PDF. Vendorlens therefore includes a Human Review workspace.
 
@@ -135,7 +192,7 @@ The reviewer can inspect and correct:
 
 When the reviewer applies corrections, the system preserves the original extraction and re-runs the same deterministic matching, risk detection, scoring, ranking, and recommendation-state reset. This demonstrates responsible AI: the AI assists humans instead of replacing them.
 
-## 9. Authentication and persistence
+## 11. Authentication and persistence
 
 Explain it like this:
 
@@ -147,7 +204,7 @@ Be honest about the scope:
 - SQLite, local Chroma, and Gmail SMTP are not the intended final architecture for a high-scale production application.
 - PostgreSQL, managed vector storage, transactional email, role-based access, and secret management are future production improvements.
 
-## 10. Suggested live demo flow (five minutes)
+## 12. Suggested live demo flow (five minutes)
 
 1. Start on the login screen and sign in.
 2. Open **Create Analysis** and define requirements: budget, timeline, support, API, SLA, ISO 27001, and GDPR.
@@ -159,7 +216,11 @@ Be honest about the scope:
 8. Open **Evidence** and **Recommendation** to show traceability from decision back to the PDF.
 9. Open **Analysis History** to show that the signed-in user’s snapshot is saved.
 
-## 11. Code excerpts worth explaining
+### Add the agent to a live demo
+
+After showing the dashboard, open the header-level **AI** control and ask: “Which vendor is cheapest over three years?” Explain that the agent calls Python cost logic and Chroma evidence retrieval, then shows citations and concise execution details. It cannot alter the analysis, scores, or recommendation.
+
+## 13. Code excerpts worth explaining
 
 These short extracts are simplified representations of the actual code. Open the listed source files during a viva if the examiner wants the complete implementation.
 
@@ -256,7 +317,7 @@ How to explain it:
 
 > “After a reviewer correction, I do not manually alter the score. I create a revised proposal and call the same analysis function, so matching, risks, scoring, and ranking remain consistent.”
 
-## 12. The five files to show a supervisor
+## 14. The five files to show a supervisor
 
 Open these files in this order if someone asks to see the main code:
 
@@ -268,7 +329,7 @@ Open these files in this order if someone asks to see the main code:
 
 If the supervisor specifically asks about the Groq model/API call, open **`app/ai/groq_client.py`** next. If they ask about password security or SQLite history, open **`app/auth/auth.py`** and **`app/persistence/database.py`**.
 
-## 13. Likely viva and interview questions
+## 15. Likely viva and interview questions
 
 ### Why did you use an LLM instead of regular expressions for extraction?
 
@@ -314,6 +375,6 @@ The project does not have OCR for scanned PDFs, uses demo-oriented SQLite/local 
 
 OCR, PostgreSQL, Docker, a managed vector database, transactional email, role-based access control, audit reports, and exportable decision briefs.
 
-## 14. Presentation closing statement
+## 16. Presentation closing statement
 
 > Vendorlens is not just a PDF chatbot. It is a human-in-the-loop procurement decision-support system. AI handles the difficult task of understanding inconsistent documents, while deterministic Python rules, source evidence, and reviewer approval keep the decision transparent, repeatable, and defensible.

@@ -239,7 +239,23 @@ streamlit run app.py
 pytest -v
 ```
 
-The current suite contains **56 tests** covering PDF parsing, chunking, schemas, extraction and repair, matching, scoring, risk rules, retrieval, authentication, SQLite persistence, review evidence, read-only agent tools, deterministic three-year cost calculation, and analysis-specific conversation persistence. Live Groq calls are replaced by local test doubles; retrieval tests use the hash embedding fallback and an in-memory Chroma client.
+The current suite contains **65 tests** covering PDF parsing, chunking, schemas, extraction and repair, matching, scoring, risk rules, retrieval, authentication, SQLite persistence, review evidence, read-only agent tools, deterministic three-year cost calculation, analysis-specific conversation persistence, and extraction-evaluation comparison rules. Live Groq calls are replaced by local test doubles; retrieval tests use the hash embedding fallback and an in-memory Chroma client.
+
+## Evaluation
+
+Vendorlens includes a reproducible extraction-evaluation harness in [`evaluation/`](evaluation/). To measure real LLM extraction accuracy, place your selected proposal PDFs in `evaluation/proposals/` and hand-fill the matching entries in `evaluation/ground_truth.json`. Replace every `TODO` value with a value you verified from the original PDF; use JSON `null` only when the proposal truly does not specify a field.
+
+Run the real evaluation pipeline with Groq configured in `.env`:
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\run_extraction_eval.py
+```
+
+The script reuses the application's real PDF parser and extraction function, then writes `evaluation/results.csv` and `evaluation/summary.md`. The summary reports the configured model, extraction limit, skipped incomplete labels, per-field accuracy, overall accuracy, and every expected-versus-extracted error. It reports no accuracy when there are no fully labelled proposals.
+
+### Latest measured run
+
+The included evaluation summary currently records **45/50 correct field comparisons (90.00% overall accuracy)** across five hand-labelled synthetic proposal PDFs, using `openai/gpt-oss-120b` and a `MAX_EXTRACTION_CHARS` value of `16000`. This is a reproducible result for that dataset and configuration, not a universal accuracy claim. The detailed per-field table and every observed mismatch are available in [`evaluation/summary.md`](evaluation/summary.md) and [`evaluation/results.csv`](evaluation/results.csv).
 
 ## Requirement Matching & Scoring
 

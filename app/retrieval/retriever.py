@@ -1,7 +1,7 @@
 """High-level retrieval helpers built on top of ChromaStore."""
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from app.retrieval.chroma_store import ChromaStore
 from app.schemas.evidence import DocumentChunk, EvidenceSnippet
@@ -27,7 +27,12 @@ def get_evidence_for_topic(store: ChromaStore, topic: str, vendor: str, top_k: i
     return store.query(query_text=topic, top_k=top_k, vendor_filter=vendor)
 
 
-def get_key_evidence_for_vendor(store: ChromaStore, vendor: str, top_k_per_topic: int = 1) -> List[EvidenceSnippet]:
+def get_key_evidence_for_vendor(
+    store: ChromaStore,
+    vendor: str,
+    top_k_per_topic: int = 1,
+    source_documents: Optional[List[str]] = None,
+) -> List[EvidenceSnippet]:
     """Gather one strong evidence snippet per key topic for a vendor, deduplicated."""
     collected: List[EvidenceSnippet] = []
     seen_texts = set()
@@ -42,10 +47,30 @@ def get_key_evidence_for_vendor(store: ChromaStore, vendor: str, top_k_per_topic
                 continue
             seen_texts.add(key)
             collected.append(hit)
+    # Chunks are indexed before LLM extraction, so their vendor metadata can
+    # contain a filename-derived name while the evaluated result has the LLM's
+    # canonical vendor name. When the exact vendor filter has no hits, use the
+    # known source documents as a safe, analysis-owned alias bridge.
+    if not collected and source_documents:
+        allowed_documents = set(source_documents)
+        for topic in EVIDENCE_TOPICS:
+            try:
+                hits = store.query(query_text=topic, top_k=max(8, top_k_per_topic))
+            except Exception:  # noqa: BLE001
+                hits = []
+            for hit in hits:
+                if hit.document not in allowed_documents:
+                    continue
+                key = (hit.page_number, hit.source_text[:80])
+                if key not in seen_texts:
+                    seen_texts.add(key)
+                    collected.append(hit)
     return collected
 
 
 def get_recommendation_evidence(
-    store: ChromaStore, recommended_vendor: str, top_k: int = 4
+    store: ChromaStore, recommended_vendor: str, top_k: int = 4, source_documents: Optional[List[str]] = None
 ) -> List[EvidenceSnippet]:
-    return get_key_evidence_for_vendor(store, recommended_vendor, top_k_per_topic=1)[:top_k]
+    return get_key_evidence_for_vendor(
+        store, recommended_vendor, top_k_per_topic=1, source_documents=source_documents
+    )[:top_k]

@@ -70,7 +70,8 @@ def _answer(question: str, analysis_id: str, conversation_id: str, results, mess
     context = [{"role": item["role"], "content": item["content"]} for item in messages[-8:]]
     with st.spinner("Selecting tools and retrieving verified proposal evidence..."):
         answer = answer_proposal_question(
-            get_groq_client(), question, results, get_chroma_store(analysis_id), context, project_name
+            get_groq_client(), question, results, get_chroma_store(analysis_id), context,
+            project_name, get_requirements()
         )
     citations = [
         {"id": f"E{index}", "vendor": item.vendor, "document": item.document,

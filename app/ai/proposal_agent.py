@@ -14,6 +14,7 @@ from app.ai.groq_client import GroqClient, GroqClientError, GroqMalformedRespons
 from app.retrieval.chroma_store import ChromaStore, RetrievalError
 from app.schemas.analysis import VendorAnalysisResult
 from app.schemas.evidence import EvidenceSnippet
+from app.schemas.requirements import RequirementsConfig
 
 
 PLANNER_SYSTEM_PROMPT = """You are the planning component of Vendorlens, a read-only procurement assistant.
@@ -55,6 +56,7 @@ def answer_proposal_question(
     store: ChromaStore,
     conversation_history: Optional[List[dict[str, str]]] = None,
     project_name: Optional[str] = None,
+    project_requirements: Optional[RequirementsConfig] = None,
 ) -> ProposalAnswer:
     """Plan tool use, execute read-only tools, then create a cited answer.
 
@@ -67,16 +69,12 @@ def answer_proposal_question(
         return ProposalAnswer("Enter a question about the uploaded proposals.", generated_by="fallback")
 
     # Project metadata belongs to the configured analysis, not vendor PDFs.
-    # Answer it directly instead of sending an irrelevant Chroma search.
+    # Answer it directly rather than sending an irrelevant Chroma search.
     question_lower = clean_question.lower()
+    if project_requirements and _is_project_context_question(question_lower):
+        return _project_context_answer(project_requirements)
     if project_name and ("project name" in question_lower or "name of the project" in question_lower):
-        return ProposalAnswer(
-            answer=(f"The current analysis project is named **{project_name}**. This name comes from the "
-                    "configured analysis requirements, not from a vendor proposal, so no proposal citation is needed."),
-            generated_by="fallback",
-            tools_used=["inspect_project_context"],
-            execution_details=[{"tool": "inspect_project_context", "status": "success", "input": {}, "output": "Read the configured analysis project name."}],
-        )
+        return _project_context_answer(None, project_name)
 
     if client is None:
         return _fallback_answer(clean_question, ranked, store, "Groq is not configured.")
@@ -227,6 +225,67 @@ def _fallback_answer(
         tools_used=["search_evidence"],
         execution_details=[{"tool": "search_evidence", "status": "fallback", "input": {"query": question}, "output": f"Retrieved {len(evidence)} proposal excerpt(s)."}],
     )
+
+
+def _is_project_context_question(question: str) -> bool:
+    """Detect questions whose source of truth is the saved requirements config."""
+    phrases = (
+        "project name", "name of the project", "maximum budget", "max budget",
+        "implementation time", "timeline requirement", "minimum support", "support period",
+        "requirement for this project", "project requirements", "scoring weights", "scoring weight",
+        "required capabilities", "required compliance",
+    )
+    return any(phrase in question for phrase in phrases)
+
+
+def _project_context_answer(
+    requirements: Optional[RequirementsConfig], project_name: Optional[str] = None
+) -> ProposalAnswer:
+    """Return the complete saved analysis context, without proposal citations."""
+    if requirements is None:
+        answer = (
+            f"The current analysis project is named **{project_name}**. The complete saved requirement "
+            "configuration is not available in this session, so thresholds cannot be stated reliably."
+        )
+        output = "Read the configured analysis project name; full requirements were unavailable."
+    else:
+        required = []
+        if requirements.api_integration_required:
+            required.append("API integration")
+        if requirements.sla_required:
+            required.append("SLA")
+        if requirements.iso27001_required:
+            required.append("ISO 27001")
+        if requirements.gdpr_required:
+            required.append("GDPR")
+        if requirements.custom_requirements:
+            required.extend(item.name for item in requirements.custom_requirements if item.required)
+        required_text = ", ".join(required) if required else "no additional boolean capability or compliance flags"
+        currency = requirements.currency_symbol or ""
+        budget = _format_threshold(requirements.max_budget, currency)
+        timeline = _format_threshold(requirements.max_timeline_weeks, "", " weeks")
+        support = _format_threshold(requirements.min_support_months, "", " months")
+        weights = requirements.scoring_weights.as_dict()
+        weights_text = ", ".join(f"{key.replace('_', ' ')} {value:g}%" for key, value in weights.items())
+        answer = (
+            f"The current analysis project is **{requirements.project_name}**. Its maximum budget is **{budget}**, "
+            f"maximum implementation time is **{timeline}**, and minimum support period is **{support}**. "
+            f"Required capabilities and compliance are: {required_text}. The scoring weights are {weights_text}. "
+            "These values come from the saved analysis requirements, not from a vendor proposal, so proposal citations are not applicable."
+        )
+        output = "Read saved project name, numeric thresholds, required flags, custom requirements, and scoring weights."
+    return ProposalAnswer(
+        answer=answer,
+        generated_by="fallback",
+        tools_used=["inspect_project_context"],
+        execution_details=[{"tool": "inspect_project_context", "status": "success", "input": {}, "output": output}],
+    )
+
+
+def _format_threshold(value: Optional[float], prefix: str = "", suffix: str = "") -> str:
+    if value is None:
+        return "not specified"
+    return f"{prefix}{value:,.0f}{suffix}" if float(value).is_integer() else f"{prefix}{value:,.2f}{suffix}"
 
 
 def _result_payload(result: VendorAnalysisResult) -> dict[str, Any]:

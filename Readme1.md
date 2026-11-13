@@ -337,7 +337,40 @@ Run the automated test suite with:
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-The current suite contains **56 tests** covering document parsing and chunking, Pydantic validation, extraction repair, requirement matching, scoring, risk rules, retrieval, authentication, SQLite persistence, review evidence handling, agent tool/citation handling, deterministic three-year cost calculation, and analysis-specific conversation persistence. External Groq calls are replaced by local test doubles during tests.
+The current suite contains **65 tests** covering document parsing and chunking, Pydantic validation, extraction repair, requirement matching, scoring, risk rules, retrieval, authentication, SQLite persistence, review evidence handling, agent tool/citation handling, deterministic three-year cost calculation, analysis-specific conversation persistence, and extraction-evaluation comparison rules. External Groq calls are replaced by local test doubles during tests.
+
+## Extraction evaluation
+
+The repository includes a reproducible evaluation harness in [`evaluation/`](evaluation/) for measuring real structured-extraction accuracy against hand-verified labels. It does not contain sample accuracy figures or guessed ground truth.
+
+1. Copy the proposal PDFs selected for evaluation into `evaluation/proposals/`.
+2. Fill one entry per PDF in `evaluation/ground_truth.json`. Replace each `TODO` with the value verified from the original proposal. Use JSON `null` only when the proposal genuinely does not specify a field.
+3. Ensure `GROQ_API_KEY` and `GROQ_MODEL` are configured in `.env`, then run:
+
+```powershell
+.\.venv\Scripts\python.exe evaluation\run_extraction_eval.py
+```
+
+The script calls the existing PyMuPDF parser and `extract_vendor_proposal` function, so it evaluates the same LLM extraction path used by the application. It writes `evaluation/results.csv` with per-proposal/per-field expected and extracted values, correctness, and error type, plus `evaluation/summary.md` with model name, UTC date, extraction limit, skipped entries, per-field accuracy, overall accuracy, and all observed errors. Entries containing `TODO` are skipped, and no accuracy is reported until at least one complete, hand-labelled proposal is evaluated.
+
+### Latest measured extraction run
+
+The current `evaluation/summary.md` records one completed, hand-labelled evaluation run over five synthetic vendor proposal PDFs (50 field comparisons). It used `GROQ_MODEL=openai/gpt-oss-120b` with `MAX_EXTRACTION_CHARS=16000` and produced **45 correct comparisons out of 50 (90.00% overall accuracy)**. This number describes this specific dataset, field definition, model configuration, and run; it is not a general guarantee of production accuracy.
+
+| Field | Correct / total | Accuracy |
+|---|---:|---:|
+| Vendor name | 5 / 5 | 100.00% |
+| Total cost | 5 / 5 | 100.00% |
+| Recurring cost | 2 / 5 | 40.00% |
+| Recurring-cost frequency | 5 / 5 | 100.00% |
+| Implementation timeline | 4 / 5 | 80.00% |
+| Support duration | 5 / 5 | 100.00% |
+| SLA | 4 / 5 | 80.00% |
+| API support | 5 / 5 | 100.00% |
+| ISO 27001 | 5 / 5 | 100.00% |
+| GDPR | 5 / 5 | 100.00% |
+
+The observed errors are retained in `evaluation/results.csv` and include recurring-cost interpretation, one conditional implementation timeline, and one SLA response that included an extra verified incident-response detail. These are useful evidence for the Human Review workflow: a schema-valid extraction still requires a reviewer to confirm commercial interpretation and contract wording.
  
 ## Design challenges and engineering resolutions
 

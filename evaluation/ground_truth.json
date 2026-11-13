@@ -1,0 +1,67 @@
+[
+  {
+    "filename": "Vendor 1.pdf",
+    "vendor_name": "Nexora Technologies Pvt. Ltd.",
+    "total_cost": 900000,
+    "recurring_cost": null,
+    "recurring_cost_frequency": null,
+    "implementation_timeline_weeks": 8,
+    "support_duration_months": 12,
+    "sla": "The platform targets 99.9% monthly availability.",
+    "api_integration_supported": true,
+    "iso27001_certified": null,
+    "gdpr_compliant": null
+  },
+  {
+    "filename": "Vendor 2.pdf",
+    "vendor_name": "PrimeDesk Systems",
+    "total_cost": 920000,
+    "recurring_cost": null,
+    "recurring_cost_frequency": null,
+    "implementation_timeline_weeks": 5,
+    "support_duration_months": 24,
+    "sla": "99.95% availability SLA with defined response times.",
+    "api_integration_supported": true,
+    "iso27001_certified": null,
+    "gdpr_compliant": null
+  },
+  {
+    "filename": "Vendor 3.pdf",
+    "vendor_name": "HelpGrid Solutions",
+    "total_cost": 670000,
+    "recurring_cost": null,
+    "recurring_cost_frequency": null,
+    "implementation_timeline_weeks": 7,
+    "support_duration_months": 12,
+    "sla": "HelpGrid aims to maintain high platform availability.",
+    "api_integration_supported": true,
+    "iso27001_certified": null,
+    "gdpr_compliant": null
+  },
+  {
+    "filename": "Vendor 4.pdf",
+    "vendor_name": "CloudAxis Digital",
+    "total_cost": 1030000,
+    "recurring_cost": 120000,
+    "recurring_cost_frequency": "annual",
+    "implementation_timeline_weeks": 6,
+    "support_duration_months": 36,
+    "sla": "99.9% guaranteed monthly availability.",
+    "api_integration_supported": true,
+    "iso27001_certified": null,
+    "gdpr_compliant": null
+  },
+  {
+    "filename": "Vendor 6.pdf",
+    "vendor_name": "ServiceNova Labs",
+    "total_cost": 999999,
+    "recurring_cost": null,
+    "recurring_cost_frequency": null,
+    "implementation_timeline_weeks": 8,
+    "support_duration_months": 12,
+    "sla": "99.9% uptime commitment",
+    "api_integration_supported": true,
+    "iso27001_certified": null,
+    "gdpr_compliant": null
+  }
+]
